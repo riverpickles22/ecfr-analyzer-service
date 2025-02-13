@@ -39,10 +39,6 @@ replay_pid*
 mvnw
 mvnw.cmd
 
-# Spring Boot
-application-*.properties
-!application.properties
-!application-example.properties
 
 # OS-specific files
 .DS_Store
