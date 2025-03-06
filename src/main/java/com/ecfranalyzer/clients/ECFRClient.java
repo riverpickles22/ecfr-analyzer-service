@@ -12,18 +12,18 @@ public class ECFRClient {
     private final String baseUrl;
     private final String adminApiPath;
     private final String searchApiPath;
-    private final String contentApiPath;
+    private final String versionerApiPath;
     private final RestTemplate restTemplate;
 
     public ECFRClient(
             @Value("${ecfr.base.url}") String baseUrl,
             @Value("${ecfr.admin.api}") String adminApiPath,
             @Value("${ecfr.search.api}") String searchApiPath,
-            @Value("${ecfr.content.api}") String contentApiPath) {
+            @Value("${ecfr.versioner.api}") String versionerApiPath) {
         this.baseUrl = baseUrl;
         this.adminApiPath = adminApiPath;
         this.searchApiPath = searchApiPath;
-        this.contentApiPath = contentApiPath;
+        this.versionerApiPath = versionerApiPath;
         this.restTemplate = new RestTemplateBuilder()
                 .defaultHeader(HttpHeaders.ACCEPT, "application/json")
                 .rootUri(baseUrl)
@@ -42,7 +42,7 @@ public class ECFRClient {
         return baseUrl + searchApiPath + endpoint;
     }
 
-    public String getContentApiUrl(String endpoint) {
-        return baseUrl + contentApiPath + endpoint;
+    public String getVersionerApiUrl(String endpoint) {
+        return baseUrl + versionerApiPath + endpoint;
     }
 } 

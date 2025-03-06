@@ -1,7 +1,6 @@
 package com.ecfranalyzer.dto.response;
 
-import com.ecfranalyzer.model.Agency;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ecfranalyzer.dto.common.AgencyDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +13,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetAgencyResponse {
-    
-    @JsonProperty("agencies")
-    private List<Agency> agencies;
+    private List<AgencyDto> agencies;
 } 

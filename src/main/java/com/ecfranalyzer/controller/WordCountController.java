@@ -5,16 +5,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ecfranalyzer.dto.response.GetWordCountByAgencyShortNameResponse;
+import com.ecfranalyzer.dto.request.WordCountBatchRequest;
+import com.ecfranalyzer.dto.response.GetWordCountResponse;
 import com.ecfranalyzer.service.ECFRService;
 
 @RestController
 @RequestMapping("/wordcount")
 public class WordCountController {
-    // analyze it for items such as word count per agency
 
     private final ECFRService ecfrService;
 
@@ -23,8 +25,13 @@ public class WordCountController {
         this.ecfrService = ecfrService;
     }
 
-    @GetMapping(path = "/byagency/{shortName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GetWordCountByAgencyShortNameResponse> getWordCountByAgencyShortName(@PathVariable String shortName) {
-        return ResponseEntity.ok(ecfrService.getWordCountByAgencyShortName(shortName));
+    @GetMapping(path = "/date-{date}/title-{title}/chapter-{chapter}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GetWordCountResponse> getWordCountByAgencyShortName(@PathVariable String date, @PathVariable String title, @PathVariable String chapter) {
+        return ResponseEntity.ok(ecfrService.getWordCountByDateTitleChapter(date, title, chapter));
     }
+    
+    @PostMapping(path = "/batch", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GetWordCountResponse> getMultipleTitleChapterWordCounts(@RequestBody WordCountBatchRequest request) {
+       return ResponseEntity.ok(ecfrService.getWordCountsForMultipleTitleChapters(request));
+   }
 }
