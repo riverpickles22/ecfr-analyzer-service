@@ -1,30 +1,30 @@
-// package com.ecfranalyzer.controller;
+package com.ecfranalyzer.controller;
 
-// import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.http.MediaType;
-// import org.springframework.http.ResponseEntity;
-// import org.springframework.web.bind.annotation.GetMapping;
-// import org.springframework.web.bind.annotation.RequestMapping;
-// import org.springframework.web.bind.annotation.RestController;
+import com.ecfranalyzer.dto.response.GetHistoricalChangesResponse;
+import com.ecfranalyzer.service.ECFRHistoricalChangesService;
+import com.ecfranalyzer.service.impl.ECFRHistoricalChangesServiceImpl;
 
-// import com.ecfranalyzer.service.ECFRService;
+@RestController
+@RequestMapping("/historical-changes")
+public class HistoricalChangesController {
 
-// @RestController
-// @RequestMapping("/historical-changes")
-// public class HistoricalChangesController {
-//     //historical changes over time
+    private final ECFRHistoricalChangesService ecfrHistoricalChangesService; 
 
-//     private final ECFRService ecfrService;
+    @Autowired
+    public HistoricalChangesController(ECFRHistoricalChangesServiceImpl ecfrHistoricalChangesService) {
+        this.ecfrHistoricalChangesService = ecfrHistoricalChangesService;
+    }
 
-//     @Autowired
-//     public HistoricalChangesController(ECFRService ecfrService) {
-//         this.ecfrService = ecfrService;
-//     }
-
-//     @GetMapping(path = "/historical-changes", produces = MediaType.APPLICATION_JSON_VALUE)
-//     public ResponseEntity<List<AgencyResponse>> getAllAgencies() {
-//         return ResponseEntity.ok(ecfrService.getAllAgencies());
-//     }
-// }
+    @GetMapping(path = "/{date}/{title}/{chapter}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GetHistoricalChangesResponse> getHistoricalChanges(@PathVariable String date, @PathVariable String title, @PathVariable String chapter) {
+        return ResponseEntity.ok(ecfrHistoricalChangesService.getHistoricalChanges(date, title, chapter));
+    }
+}

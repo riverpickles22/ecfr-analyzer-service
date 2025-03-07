@@ -12,21 +12,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ecfranalyzer.dto.request.WordCountBatchRequest;
 import com.ecfranalyzer.dto.response.GetWordCountResponse;
-import com.ecfranalyzer.service.ECFRService;
+import com.ecfranalyzer.service.ECFRWordCountService;
 
 @RestController
 @RequestMapping("/wordcount")
 public class WordCountController {
 
-    private final ECFRService ecfrService;
+    private final ECFRWordCountService ecfrService;
 
     @Autowired
-    public WordCountController(ECFRService ecfrService) {
+    public WordCountController(ECFRWordCountService ecfrService) {
         this.ecfrService = ecfrService;
     }
 
     @GetMapping(path = "/date-{date}/title-{title}/chapter-{chapter}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GetWordCountResponse> getWordCountByAgencyShortName(@PathVariable String date, @PathVariable String title, @PathVariable String chapter) {
+    public ResponseEntity<GetWordCountResponse> getWordCountByDateTitleChapter(@PathVariable String date, @PathVariable String title, @PathVariable String chapter) {
         return ResponseEntity.ok(ecfrService.getWordCountByDateTitleChapter(date, title, chapter));
     }
     
