@@ -201,12 +201,14 @@ public class ECFRWordCountServiceImpl implements ECFRWordCountService {
     /**
      * Uses parallel processing (with a custom ForkJoinPool) to fetch and count words in the XML content for each part node.
      */
+    @SuppressWarnings("resource")
     private Long countWordsInParts(List<JsonNode> partNodes, String date, String title) {
         if (partNodes.isEmpty()) {
             return 0L;
         }
         
-        try (ForkJoinPool customThreadPool = new ForkJoinPool(threadPoolSize)) {
+        ForkJoinPool customThreadPool = new ForkJoinPool(threadPoolSize);
+        try {
             return customThreadPool.submit(() ->
                 partNodes.parallelStream()
                     .mapToLong(partNode -> {
@@ -221,6 +223,8 @@ public class ECFRWordCountServiceImpl implements ECFRWordCountService {
                     })
                     .sum()
             ).join();
+        } finally {
+            customThreadPool.shutdown();
         }
     }
 

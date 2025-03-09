@@ -14,7 +14,11 @@ public class WebConfig {
             @Override
             public void addCorsMappings(@SuppressWarnings("null") CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:4200")
+                        .allowedOrigins(
+                            "http://localhost:4200",
+                            "http://ecfr-analyzer.s3-website-us-east-1.amazonaws.com",
+                            "https://ecfr-analyzer.s3-website-us-east-1.amazonaws.com"
+                        )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*");
                         // .allowCredentials(true);
