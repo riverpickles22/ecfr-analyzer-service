@@ -8,11 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
@@ -117,7 +113,7 @@ public class ECFRWordCountServiceImpl implements ECFRWordCountService {
      */
     private JsonNode getChapterStructure(String date, String title, String chapter) {
         String urlPath = "/structure/" + date + "/title-" + title + ".json";
-        String responseJSON = fetchJsonContent(urlPath, date, title, chapter);
+        String responseJSON = ecfrClient.fetchContent(urlPath, String.class);
     
         if (responseJSON == null || responseJSON.trim().isEmpty()) {
             logger.warn("Empty response received for date: {}, title: {}, chapter: {}", date, title, chapter);
@@ -201,56 +197,6 @@ public class ECFRWordCountServiceImpl implements ECFRWordCountService {
         }
         return count;
     }
-    
-    /**
-     * A helper method that fetches content with retry logic to handle 429 Too Many Requests.
-     * Now tries 5 times before giving up and pauses if an error occurs.
-     */
-    private <T> T fetchContentWithRetry(String urlPath, String date, String title, String identifier, Class<T> responseType) {
-        int maxAttempts = 5;
-        int attempt = 0;
-        long backoff = 6000L; // start with 2 seconds pause
-        while (attempt < maxAttempts) {
-            try {
-                ResponseEntity<T> response = ecfrClient.getRestTemplate()
-                        .exchange(
-                            ecfrClient.getVersionerApiUrl(urlPath),
-                            HttpMethod.GET,
-                            null,
-                            responseType
-                        );
-                return response.getBody();
-            } catch (HttpClientErrorException.TooManyRequests ex) {
-                attempt++;
-                logger.warn("Too many requests for url {}. Attempt {} of {}. Pausing for {} ms", urlPath, attempt, maxAttempts, backoff);
-                try {
-                    Thread.sleep(backoff);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    return null;
-                }
-                backoff *= 2; // exponential increase for subsequent attempts
-            } catch (RestClientException e) {
-                logger.error("Error fetching content from: {} for date: {}, title: {}, identifier: {}",
-                             urlPath, date, title, identifier, e);
-                return null;
-            }
-        }
-        logger.error("Failed to fetch content from {} after {} attempts", urlPath, maxAttempts);
-        return null;
-    }
-    
-    private <T> T fetchContent(String urlPath, String date, String title, String identifier, Class<T> responseType) {
-        return fetchContentWithRetry(urlPath, date, title, identifier, responseType);
-    }
-    
-    private String fetchXmlContent(String urlPath, String date, String title, String identifier) {
-        return fetchContent(urlPath, date, title, identifier, String.class);
-    }
-    
-    private String fetchJsonContent(String urlPath, String date, String title, String identifier) {
-        return fetchContent(urlPath, date, title, identifier, String.class);
-    }
 
     /**
      * Uses parallel processing (with a custom ForkJoinPool) to fetch and count words in the XML content for each part node.
@@ -266,7 +212,7 @@ public class ECFRWordCountServiceImpl implements ECFRWordCountService {
                     .mapToLong(partNode -> {
                         String partIdentifier = partNode.path("identifier").asText();
                         String urlPath = "/full/" + date + "/title-" + title + ".xml?part=" + partIdentifier;
-                        String partXml = fetchXmlContent(urlPath, date, title, partIdentifier);
+                        String partXml = ecfrClient.fetchContent(urlPath, String.class);
                         if (partXml == null || partXml.trim().isEmpty()) {
                             logger.warn("Empty XML content for date: {}, title: {}, part: {}", date, title, partIdentifier);
                             return 0L;
