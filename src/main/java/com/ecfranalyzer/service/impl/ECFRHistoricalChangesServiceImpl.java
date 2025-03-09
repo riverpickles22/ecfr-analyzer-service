@@ -7,14 +7,15 @@ import com.ecfranalyzer.model.DailyHistoricalChangesCounter;
 import com.ecfranalyzer.service.ECFRHistoricalChangesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -51,6 +52,8 @@ public class ECFRHistoricalChangesServiceImpl implements ECFRHistoricalChangesSe
             .sorted(Comparator.comparing(e -> LocalDate.parse(e.getDate())))
             .collect(Collectors.toList());
     
+        dailyChanges = fillMissingDates(dailyChanges);
+
         Integer totalChanges = dailyChanges.stream()
             .mapToInt(DailyChangeDto::getCount)
             .sum();
@@ -59,6 +62,28 @@ public class ECFRHistoricalChangesServiceImpl implements ECFRHistoricalChangesSe
             .dailyChanges(dailyChanges)
             .totalChanges(totalChanges)
             .build();
+    }
+
+    private List<DailyChangeDto> fillMissingDates(List<DailyChangeDto> changes) {
+        if (changes.isEmpty()) {
+            return changes;
+        }
+    
+        Map<String, Integer> changesMap = changes.stream()
+            .collect(Collectors.toMap(DailyChangeDto::getDate, DailyChangeDto::getCount));
+    
+        List<DailyChangeDto> completeList = new ArrayList<>();
+        
+        LocalDate startDate = LocalDate.parse(changes.get(0).getDate()); // Earliest date in dataset
+        LocalDate endDate = LocalDate.now(); // Today's date
+    
+        while (!startDate.isAfter(endDate)) {
+            String formattedDate = startDate.toString();
+            completeList.add(new DailyChangeDto(formattedDate, changesMap.getOrDefault(formattedDate, 0)));
+            startDate = startDate.plusDays(1);
+        }
+    
+        return completeList;
     }
     
 }
