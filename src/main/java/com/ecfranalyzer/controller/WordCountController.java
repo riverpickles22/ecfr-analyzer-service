@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ecfranalyzer.dto.request.WordCountBatchRequest;
 import com.ecfranalyzer.dto.response.GetWordCountResponse;
+import com.ecfranalyzer.service.impl.ECFRWordCountServiceImpl;
 import com.ecfranalyzer.service.ECFRWordCountService;
 
 @RestController
@@ -21,7 +22,7 @@ public class WordCountController {
     private final ECFRWordCountService ecfrService;
 
     @Autowired
-    public WordCountController(ECFRWordCountService ecfrService) {
+    public WordCountController(ECFRWordCountServiceImpl ecfrService) {
         this.ecfrService = ecfrService;
     }
 

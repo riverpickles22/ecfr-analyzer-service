@@ -113,7 +113,7 @@ public class ECFRWordCountServiceImpl implements ECFRWordCountService {
      */
     private JsonNode getChapterStructure(String date, String title, String chapter) {
         String urlPath = "/structure/" + date + "/title-" + title + ".json";
-        String responseJSON = ecfrClient.fetchContent(urlPath, String.class);
+        String responseJSON = ecfrClient.fetchContent(ecfrClient.getVersionerApiUrl(urlPath), String.class);
     
         if (responseJSON == null || responseJSON.trim().isEmpty()) {
             logger.warn("Empty response received for date: {}, title: {}, chapter: {}", date, title, chapter);
@@ -212,7 +212,7 @@ public class ECFRWordCountServiceImpl implements ECFRWordCountService {
                     .mapToLong(partNode -> {
                         String partIdentifier = partNode.path("identifier").asText();
                         String urlPath = "/full/" + date + "/title-" + title + ".xml?part=" + partIdentifier;
-                        String partXml = ecfrClient.fetchContent(urlPath, String.class);
+                        String partXml = ecfrClient.fetchContent(ecfrClient.getVersionerApiUrl(urlPath), String.class);
                         if (partXml == null || partXml.trim().isEmpty()) {
                             logger.warn("Empty XML content for date: {}, title: {}, part: {}", date, title, partIdentifier);
                             return 0L;
